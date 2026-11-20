@@ -1,0 +1,27 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "authenticator-mc",
+          "appId": "1:311643263816:android:14208d83875cb86bc3997d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "authenticator-mc",
+          "configurations": {
+            "android": "1:311643263816:android:14208d83875cb86bc3997d",
+            "ios": "1:311643263816:ios:840241a93095ebb0c3997d"
+          }
+        }
+      }
+    }
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true
+    }
+  }
+}
