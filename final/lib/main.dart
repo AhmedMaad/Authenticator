@@ -3,13 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
+import 'form_page.dart';
 
 void main() async {
-  //is necessary when you perform asynchronous initialization before runApp()
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
   runApp(const AuthenticatorApp());
 }
 
@@ -278,6 +276,7 @@ class _AuthPageState extends State<AuthPage> {
                     onValueChanged: (value) {
                       if (value != null) {
                         setState(() {
+                          isForgotPasswordLoading = false;
                           isLoading = false;
                           selectedTab = value;
                         });
@@ -381,7 +380,12 @@ class _AuthPageState extends State<AuthPage> {
         password: password,
       );
       if (credential.user!.emailVerified) {
-        showMessage('Logged in successfully!');
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            CupertinoPageRoute(builder: (_) => FormPage()),
+          );
+        }
       } else {
         showMessage('Verify your email first!');
       }
