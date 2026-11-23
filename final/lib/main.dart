@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'already_submitted_page.dart';
 import 'firebase_options.dart';
 import 'form_page.dart';
 
@@ -58,15 +60,16 @@ class _AuthPageState extends State<AuthPage> {
   void showMessage(String message) {
     showCupertinoDialog(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
-        content: Text(message),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      builder: (context) =>
+          CupertinoAlertDialog(
+            content: Text(message),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -133,12 +136,12 @@ class _AuthPageState extends State<AuthPage> {
         child: isLoading
             ? CupertinoActivityIndicator(color: CupertinoColors.white)
             : Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
@@ -175,13 +178,13 @@ class _AuthPageState extends State<AuthPage> {
             child: isForgotPasswordLoading
                 ? const CupertinoActivityIndicator()
                 : const Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: CupertinoColors.systemBlue,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
+              'Forgot Password?',
+              style: TextStyle(
+                color: CupertinoColors.systemBlue,
+                fontSize: 14,
+                decoration: TextDecoration.underline,
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 28),
@@ -292,13 +295,13 @@ class _AuthPageState extends State<AuthPage> {
                   duration: const Duration(milliseconds: 250),
                   child: selectedTab == 0
                       ? KeyedSubtree(
-                          key: const ValueKey('login'),
-                          child: buildLoginForm(),
-                        )
+                    key: const ValueKey('login'),
+                    child: buildLoginForm(),
+                  )
                       : KeyedSubtree(
-                          key: const ValueKey('signup'),
-                          child: buildSignUpForm(),
-                        ),
+                    key: const ValueKey('signup'),
+                    child: buildSignUpForm(),
+                  ),
                 ),
               ],
             ),
@@ -380,13 +383,9 @@ class _AuthPageState extends State<AuthPage> {
         password: password,
       );
       if (credential.user!.emailVerified) {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            CupertinoPageRoute(builder: (_) => FormPage()),
-          );
-        }
-      } else {
+        getUser();
+      }
+      else {
         showMessage('Verify your email first!');
       }
     } on FirebaseAuthException catch (e) {
@@ -416,4 +415,21 @@ class _AuthPageState extends State<AuthPage> {
       });
     }
   }
+
+  Future<void> getUser() async {
+    var document = await FirebaseFirestore.instance
+        .collection('trainees')
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      CupertinoPageRoute(
+          builder: (_) => document.exists ? AlreadySubmittedPage() : FormPage()
+      ),
+    );
+  }
+
 }
